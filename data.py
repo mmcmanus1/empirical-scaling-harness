@@ -58,16 +58,16 @@ class TinyStoriesDataset(Dataset):
         """Get a tokenized sample."""
         text = self.dataset[idx]["text"]
 
-        # Tokenize
+        # Tokenize - don't use return_tensors="pt" to avoid storage issues
+        # with multiprocessing DataLoader workers
         tokens = self.tokenizer(
             text,
             max_length=self.max_seq_len,
             truncation=True,
             padding="max_length",
-            return_tensors="pt",
         )
 
-        input_ids = tokens["input_ids"].squeeze(0)
+        input_ids = torch.tensor(tokens["input_ids"], dtype=torch.long)
 
         return {
             "input_ids": input_ids,
