@@ -1,8 +1,11 @@
 # Empirical Scaling Harness
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mmcmanus1/empirical-scaling-harness/blob/main/scaling_experiment.ipynb)
+| Notebook | Description |
+|----------|-------------|
+| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mmcmanus1/empirical-scaling-harness/blob/main/scaling_experiment.ipynb) | **Scaling Experiment** — Train transformers at 3M, 10M, 30M, and 85M params with GeLU and SwiGLU activations. Self-contained: runs end-to-end in 2-8 hours. |
+| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mmcmanus1/empirical-scaling-harness/blob/main/analysis.ipynb) | **Analysis** — Load experiment results, fit power laws L(C) = a × C^(-b), validate holdout predictions, and generate scaling plots. |
 
-> **One-click experiment**: Click the badge above to run the complete scaling law experiment in Google Colab. No setup required - just click and run all cells.
+> Select **T4 GPU** in Runtime → Change runtime type for best performance.
 
 Automated verification of power-law scaling for transformer architecture variants.
 
