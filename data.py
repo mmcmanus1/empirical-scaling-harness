@@ -4,6 +4,7 @@ Data loading for TinyStories dataset.
 Uses HuggingFace datasets and GPT-2 tokenizer.
 """
 
+import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 from datasets import load_dataset
@@ -58,8 +59,9 @@ class TinyStoriesDataset(Dataset):
         """Get a tokenized sample."""
         text = self.dataset[idx]["text"]
 
-        # Tokenize - don't use return_tensors="pt" to avoid storage issues
-        # with multiprocessing DataLoader workers
+        # Tokenize - return numpy arrays to avoid storage resize issues
+        # with multiprocessing DataLoader workers. The default collate_fn
+        # will convert these to tensors.
         tokens = self.tokenizer(
             text,
             max_length=self.max_seq_len,
@@ -67,11 +69,11 @@ class TinyStoriesDataset(Dataset):
             padding="max_length",
         )
 
-        input_ids = torch.tensor(tokens["input_ids"], dtype=torch.long)
+        input_ids = np.array(tokens["input_ids"], dtype=np.int64)
 
         return {
             "input_ids": input_ids,
-            "labels": input_ids.clone(),
+            "labels": input_ids.copy(),  # Use copy() for numpy arrays
         }
 
 
