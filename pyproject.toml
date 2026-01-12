@@ -23,7 +23,7 @@ classifiers = [
 
 dependencies = [
     # Core ML
-    "torch>=2.0.0,<2.3.0",
+    "torch>=2.0.0,<3.0.0",
     "transformers>=4.40.0,<4.50.0",
     "datasets>=2.14.0,<3.0.0",
     # Training utilities
@@ -31,7 +31,7 @@ dependencies = [
     "tqdm>=4.65.0,<5.0.0",
     # Analysis
     "scipy>=1.11.0,<2.0.0",
-    "numpy>=1.24.0,<2.0.0",
+    "numpy>=1.24.0,<3.0.0",
     "pandas>=2.0.0,<3.0.0",
     "matplotlib>=3.7.0,<4.0.0",
 ]
@@ -155,4 +155,12 @@ exclude_lines = [
     "pragma: no cover",
     "if __name__ == .__main__.:",
     "raise NotImplementedError",
+]
+
+[tool.uv]
+# Target Linux (Colab) and ARM Mac only
+# Intel Mac not supported - torch 2.9+ dropped x86_64 macOS support
+environments = [
+    "sys_platform == 'linux'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
 ]

@@ -13,8 +13,21 @@ from typing import Iterator, Optional
 
 def collate_batch(samples: list[dict]) -> dict:
     """Collate samples into a batch with proper tensors."""
-    input_ids = torch.tensor([s["input_ids"] for s in samples], dtype=torch.long)
-    labels = torch.tensor([s["labels"] for s in samples], dtype=torch.long)
+    # Filter out invalid samples (wrong length or empty)
+    expected_len = 512
+    valid_samples = [
+        s for s in samples
+        if len(s.get("input_ids", [])) == expected_len
+    ]
+
+    # If all samples were invalid, raise clear error
+    if not valid_samples:
+        raise ValueError(
+            f"No valid samples in batch. Got lengths: {[len(s.get('input_ids', [])) for s in samples]}"
+        )
+
+    input_ids = torch.tensor([s["input_ids"] for s in valid_samples], dtype=torch.long)
+    labels = torch.tensor([s["labels"] for s in valid_samples], dtype=torch.long)
     return {"input_ids": input_ids, "labels": labels}
 
 
@@ -65,6 +78,10 @@ class TinyStoriesDataset(Dataset):
         """Get a tokenized sample."""
         text = self.dataset[idx]["text"]
 
+        # Skip empty text - try next sample
+        if not text or not text.strip():
+            return self.__getitem__((idx + 1) % len(self))
+
         # Tokenize - return Python lists to avoid storage resize issues
         # with multiprocessing DataLoader workers. Using lists (not numpy
         # arrays) ensures the default collate_fn creates fresh tensors
@@ -77,6 +94,13 @@ class TinyStoriesDataset(Dataset):
         )
 
         input_ids = tokens["input_ids"]
+
+        # Validate we got actual content tokens (not just padding)
+        pad_token_id = self.tokenizer.pad_token_id or 0
+        non_padding_count = sum(1 for t in input_ids if t != pad_token_id)
+
+        if non_padding_count == 0:
+            return self.__getitem__((idx + 1) % len(self))
 
         return {
             "input_ids": input_ids,
