@@ -56,3 +56,14 @@ Thumbs.db
 
 # Context directory
 .context/
+
+# Testing and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Type checking
+.mypy_cache/
+
+# Linting
+.ruff_cache/

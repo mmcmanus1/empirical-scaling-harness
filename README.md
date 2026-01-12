@@ -129,6 +129,41 @@ TensorBoard logs are saved during training:
 tensorboard --logdir logs/
 ```
 
+## Development
+
+### Setup
+
+```bash
+# Install with dev dependencies
+pip install -e ".[dev,notebook]"
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=. --cov-report=html
+
+# Skip slow tests
+pytest -m "not slow"
+```
+
+### Code Quality
+
+```bash
+# Format code
+black .
+
+# Lint code
+ruff check .
+
+# Type check
+mypy .
+```
+
 ## Citation
 
 This project replicates methodology from:
