@@ -11,6 +11,13 @@ from transformers import GPT2Tokenizer
 from typing import Iterator, Optional
 
 
+def collate_batch(samples: list[dict]) -> dict:
+    """Collate samples into a batch with proper tensors."""
+    input_ids = torch.tensor([s["input_ids"] for s in samples], dtype=torch.long)
+    labels = torch.tensor([s["labels"] for s in samples], dtype=torch.long)
+    return {"input_ids": input_ids, "labels": labels}
+
+
 class TinyStoriesDataset(Dataset):
     """TinyStories dataset for language modeling."""
 
@@ -184,6 +191,7 @@ def create_dataloaders(
         num_workers=num_workers,
         pin_memory=True,
         drop_last=True,
+        collate_fn=collate_batch,
     )
 
     val_loader = DataLoader(
@@ -193,6 +201,7 @@ def create_dataloaders(
         num_workers=num_workers,
         pin_memory=True,
         drop_last=False,
+        collate_fn=collate_batch,
     )
 
     return train_loader, val_loader
@@ -212,7 +221,7 @@ if __name__ == "__main__":
     # Test standard dataset
     dataset = TinyStoriesDataset(split="train", max_samples=100)
     sample = dataset[0]
-    print(f"Sample input_ids shape: {sample['input_ids'].shape}")
+    print(f"Sample input_ids length: {len(sample['input_ids'])}")
 
     # Test dataloader
     train_loader, val_loader = create_dataloaders(

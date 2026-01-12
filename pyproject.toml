@@ -23,8 +23,8 @@ classifiers = [
 
 dependencies = [
     # Core ML
-    "torch>=2.0.0,<3.0.0",
-    "transformers>=4.30.0,<5.0.0",
+    "torch>=2.0.0,<2.3.0",
+    "transformers>=4.40.0,<4.50.0",
     "datasets>=2.14.0,<3.0.0",
     # Training utilities
     "tensorboard>=2.14.0,<3.0.0",
