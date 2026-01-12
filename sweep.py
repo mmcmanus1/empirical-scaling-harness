@@ -98,7 +98,12 @@ def run_experiment(
 
     # Determine device
     if device is None:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
     print(f"\nDevice: {device}")
 
     # Build model
@@ -107,11 +112,13 @@ def run_experiment(
     print(f"Model parameters: {model.count_parameters():,}")
 
     # Create dataloaders
+    # Use 0 workers on MPS to avoid multiprocessing issues
+    num_workers = 0 if device == "mps" else 2
     print("\nLoading data...")
     train_loader, val_loader = create_dataloaders(
         batch_size=train_hparams["batch_size"],
         max_seq_len=model_config.max_seq_len,
-        num_workers=2,  # Reduce for Colab
+        num_workers=num_workers,
     )
 
     # Train

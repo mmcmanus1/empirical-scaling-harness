@@ -194,7 +194,8 @@ class Trainer:
             input_ids = batch["input_ids"].to(self.device)
             labels = batch["labels"].to(self.device)
 
-            with autocast('cuda', enabled=self.config.use_amp):
+            device_type = self.device.split(':')[0] if ':' in self.device else self.device
+            with autocast(device_type, enabled=(self.config.use_amp and device_type == "cuda")):
                 _, loss = self.model(input_ids, labels=labels)
 
             total_loss += loss.item()
@@ -212,7 +213,8 @@ class Trainer:
         input_ids = batch["input_ids"].to(self.device)
         labels = batch["labels"].to(self.device)
 
-        with autocast('cuda', enabled=self.config.use_amp):
+        device_type = self.device.split(':')[0] if ':' in self.device else self.device
+        with autocast(device_type, enabled=(self.config.use_amp and device_type == "cuda")):
             _, loss = self.model(input_ids, labels=labels)
             loss = loss / self.config.gradient_accumulation_steps
 
@@ -383,7 +385,12 @@ def train_model(
         Dictionary with final metrics
     """
     if device is None:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
 
     train_config = TrainingConfig(
         total_tokens=total_tokens,
